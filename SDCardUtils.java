@@ -1,7 +1,5 @@
 
-
 import java.io.File;
-
 import android.annotation.SuppressLint;
 import android.os.Environment;
 import android.os.StatFs;

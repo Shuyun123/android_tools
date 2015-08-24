@@ -5,8 +5,8 @@
 
          
     目录：
-      1.ScreenUtil.class  //屏幕辅助类
-      2.
+      1.ScreenUtils.class  //屏幕辅助类      
+      2.SDCardUtils.class  //SDCard辅助类
 
 
 

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 指示器默认样式-->
+    <style name="Theme.PagerIndicatorDefault" parent="android:Theme">
+        <item name="vpiTabPagerIndicatorStyle">@style/Widget.TabPagerIndicator</item>
+    </style>
+
+
+    <style name="Widget"></style>
+
+    <!-- Tab样式指示器样式-->
+    <style name="Widget.TabPagerIndicator" parent="Widget">
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/vpi__tab_indicator</item>
+        <item name="android:paddingLeft">22dip</item>
+        <item name="android:paddingRight">22dip</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.TabPagerIndicator</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:maxLines">1</item>
+    </style>
+    <!--Icon样式指示器样式-->
+    <style name="Widget.IconPagerIndicator" parent="Widget">
+        <item name="android:layout_marginLeft">6dip</item>
+        <item name="android:layout_marginRight">6dip</item>
+    </style>
+
+    <style name="TextAppearance.TabPagerIndicator" parent="Widget">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/vpi__dark_theme</item>
+    </style>
+
+
+</resources>

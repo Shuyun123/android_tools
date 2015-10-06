@@ -1,7 +1,8 @@
-## Jake Wharton大神的源码移植！！
+## 来源于Jake Wharton大神的源码！！
 
-##中文版——————Android studio版(Jake Wharton版的eclipse移植)
+##中文版——————Android Studio版
 
+## 指示器大全应用sample
 
 ###Bug:......
 

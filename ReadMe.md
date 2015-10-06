@@ -23,9 +23,11 @@
 	           | 
 	           +---------- PagerIndicator.java ---- 一个显示当前视图和总的视图数量的接口类   
 	           |   
-               +---------- TabPagerIndicator.java --- 选项卡切换类    
+               +---------- TabPagerIndicator.java --- 选项卡指示器类    
                |
-               +---------- IconPagerAdapter.java  --- tab选项卡图片适配接口                   
+               +---------- IconPagerAdapter.java  --- tab选项卡图片适配接口 
+               |
+               +---------- IcsLinearLayout.java  ---- 自定义的tabs选项卡上方分割线视图类                  
     
       该源码来自大神[Jake Wharton](https://github.com/JakeWharton/ViewPagerIndicator/)
       重新覆写,并添加中文注释(英语不好,欢迎指正*_-)

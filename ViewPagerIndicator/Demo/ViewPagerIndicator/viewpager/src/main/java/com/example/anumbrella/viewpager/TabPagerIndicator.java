@@ -20,6 +20,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
@@ -111,7 +112,7 @@ public class TabPagerIndicator extends HorizontalScrollView implements
 
     public TabPagerIndicator(Context context, AttributeSet attrs) {
         super(context, attrs);
-        // 设置HorizontalScrollBar是否可以拖动
+        // 设置HorizontalScrollBar是否可以拖动,显示滑动条
         setHorizontalScrollBarEnabled(false);
         //设置tabs选项卡上方属性(通过xml改变)
         mTabLayout = new IcsLinearLayout(context, R.attr.vpiTabPagerIndicatorStyle);
@@ -146,7 +147,7 @@ public class TabPagerIndicator extends HorizontalScrollView implements
 
         //如果图片id不为0,就为tabs选项卡添加图片
         if (iconId != 0) {
-            tabView.setCompoundDrawablesWithIntrinsicBounds(iconId,0,0,0);
+            tabView.setCompoundDrawablesWithIntrinsicBounds(iconId, 0, 0, 0);
         }
 
         // 将单个TabView添加到bar布局当中去
@@ -280,6 +281,7 @@ public class TabPagerIndicator extends HorizontalScrollView implements
             public void run() {
                 final int scrollPos = tabView.getLeft()
                         - (getWidth() - tabView.getWidth()) / 2;
+                //当scrollPos < 0 时 并不会移动
                 smoothScrollTo(scrollPos, 0);
                 mTabSelector = null;
             }

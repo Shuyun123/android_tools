@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
-    <!-- tab指示的样式-->
+
+    <!-- tab指示器的样式-->
     <attr name="vpiTabPagerIndicatorStyle" format="reference" />
+
+    <!-- icon指示器的样式-->
+    <attr name="vpiIconPagerIndicatorStyle" format="reference" />
 </resources>

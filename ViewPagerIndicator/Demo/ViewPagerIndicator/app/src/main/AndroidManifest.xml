@@ -16,6 +16,10 @@
             </intent-filter>
         </activity>
 
+
+        <!-- Tabs指示器 -->
+
+
         <activity
             android:name=".Tabs.SampleTabsDefault"
             android:label="Tabs/Default"
@@ -45,6 +49,18 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
             </intent-filter>
+        </activity>
+
+
+        <!-- Icons指示器 -->
+        <activity
+            android:name=".Icons.SampleIconsDefault"
+            android:label="Icons/Default">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+
         </activity>
 
     </application>

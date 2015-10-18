@@ -72,7 +72,7 @@ public class MainActivity extends ListActivity {
         }
 
         String[] prefixPath;
-        String prifixWithSlash = prefix;
+        String prefixWithSlash = prefix;
 
 
         if (prefix.equals("")) {
@@ -80,7 +80,7 @@ public class MainActivity extends ListActivity {
         } else {
             //如:prefix = Circles,则prefixPath = Circles,prefixPath.length = 1;
             prefixPath = prefix.split("/");
-            prifixWithSlash = prefix + "/";
+            prefixWithSlash = prefix + "/";
         }
 
         //这个长度是固定不变的
@@ -98,31 +98,31 @@ public class MainActivity extends ListActivity {
 
             String label = (labelSeq != null ? labelSeq.toString() : info.activityInfo.name);
 
-            //将label的值分成数组,如:label = Circles/Default，
-            String[] labelPath = label.split("/");
+            if (prefixWithSlash.length() == 0
+                    || label.startsWith(prefixWithSlash)) {
+                //将label的值分成数组,如:label = Circles/Default，
+                String[] labelPath = label.split("/");
 
+                /**
+                 * 如果:label = Circles/Default，prefixPath == null，
+                 * 则nextLabel = Circles，否则 nextLabel = Default
+                 */
+                String nextLabel = (prefixPath == null ? labelPath[0] : labelPath[prefixPath.length]);
 
-            /**
-             * 如果如:label = Circles/Default，prefixPath == null，
-             * 则nextLabel = Circles，否则 nextLabel = Default
-             */
-            String nextLabel = (prefixPath == null ? labelPath[0] : labelPath[prefixPath.length]);
+                //(true or false ? 1:0== 1)
+                if ((prefixPath != null ? prefixPath.length : 0) == labelPath.length - 1) {
 
-            //(true or false ? 1:0== 1)
-            if ((prefixPath != null ? prefixPath.length : 0) == labelPath.length - 1) {
-
-                addItem(myData, nextLabel,
-                        activityIntent(info.activityInfo.packageName, info.activityInfo.name));
-            } else {
-                if (entries.get(nextLabel) == null) {
                     addItem(myData, nextLabel,
-                            browseIntent(prefix.equals("") ? nextLabel : prefix + "/" + nextLabel));
-                    entries.put(nextLabel, true);
+                            activityIntent(info.activityInfo.packageName, info.activityInfo.name));
+                } else {
+                    if (entries.get(nextLabel) == null) {
+                        addItem(myData, nextLabel,
+                                browseIntent(prefix.equals("") ? nextLabel : prefix + "/" + nextLabel));
+                        entries.put(nextLabel, true);
+                    }
+
                 }
-
-
             }
-
 
         }
 
@@ -130,7 +130,6 @@ public class MainActivity extends ListActivity {
         // 按照字母的大小写顺序进行排序
         Collections.sort(myData, NAME_COMPARATOR);
         return myData;
-
     }
 
 

@@ -1,9 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- tab指示器的样式-->
-    <attr name="vpiTabPagerIndicatorStyle" format="reference" />
+    <declare-styleable name="ViewPagerIndicator">
+        <!-- tab指示器的样式-->
+        <attr name="vpiTabPagerIndicatorStyle" format="reference" />
 
-    <!-- icon指示器的样式-->
-    <attr name="vpiIconPagerIndicatorStyle" format="reference" />
+        <!-- icon指示器的样式-->
+        <attr name="vpiIconPagerIndicatorStyle" format="reference" />
+
+        <!-- line指示器的样式 -->
+        <attr name="vpiLinePagerIndicatorStyle" format="reference" />
+
+    </declare-styleable>
+
+
+    <!--在xml中定义Line指示器的属性-->
+    <declare-styleable name="LinePagerIndicator">
+
+        <!--设置指示器是否在中心属性-->
+        <attr name="centered" />
+        <!--设置没有选择指示器时的颜色-->
+        <attr name="unselectedColor" />
+        <!--设置选择指示器时的颜色-->
+        <attr name="selectedColor" />
+        <!-- 设置指示器线长的宽度-->
+        <attr name="lineWidth" format="dimension" />
+        <!--设置画笔的宽度-->
+        <attr name="strokeWidth" />
+        <!--设置指示器之间的间隔距离-->
+        <attr name="gapWidth" format="dimension" />
+        <!--设置视图的背景-->
+        <attr name="android:background" />
+
+    </declare-styleable>
+
+
 </resources>

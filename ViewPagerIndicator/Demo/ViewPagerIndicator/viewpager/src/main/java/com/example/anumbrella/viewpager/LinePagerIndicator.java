@@ -18,11 +18,14 @@ package com.example.anumbrella.viewpager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
@@ -36,6 +39,12 @@ import android.view.ViewConfiguration;
  * LinePagerIndicator绘制下划线为每个页面，当选中该页面时线条颜色会相应进行改变
  */
 public class LinePagerIndicator extends View implements PagerIndicator {
+
+
+    /**
+     * 设置无效的触点值
+     */
+    private final int INVALID_POINTER = -1;
 
 
     /**
@@ -85,6 +94,24 @@ public class LinePagerIndicator extends View implements PagerIndicator {
      * 当前页面索引
      */
     private int mCurrentPage;
+
+
+    /**
+     * 指定触点的标识
+     */
+    private int mActivePointerId = INVALID_POINTER;
+
+
+    /**
+     * 设定最后移动时x坐标的值
+     */
+    private float mLastMotionX = -1;
+
+
+    /**
+     * 设置拖动的标识
+     */
+    private boolean isDragging = false;
 
 
     public LinePagerIndicator(Context context) {
@@ -141,16 +168,16 @@ public class LinePagerIndicator extends View implements PagerIndicator {
 
     @Override
     public void setViewPager(ViewPager viewPager) {
-        if(mViewPager == null){
+        if (mViewPager == null) {
             return;
         }
 
-        if(mViewPager != null){
+        if (mViewPager != null) {
             mViewPager.setOnPageChangeListener(null);
         }
 
-        if(viewPager.getAdapter() == null){
-            throw  new IllegalStateException("ViewPager dose not have adapter instance!");
+        if (viewPager.getAdapter() == null) {
+            throw new IllegalStateException("ViewPager dose not have adapter instance!");
         }
 
         mViewPager = viewPager;
@@ -168,8 +195,8 @@ public class LinePagerIndicator extends View implements PagerIndicator {
     @Override
     public void setCurrentItem(int item) {
 
-        if(mViewPager != null){
-            throw  new IllegalStateException("ViewPager has not been found!");
+        if (mViewPager != null) {
+            throw new IllegalStateException("ViewPager has not been found!");
         }
         mViewPager.setCurrentItem(item);
         mCurrentPage = item;
@@ -188,9 +215,9 @@ public class LinePagerIndicator extends View implements PagerIndicator {
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-          if(pageChangeListener != null){
-              pageChangeListener.onPageScrolled(position,positionOffset,positionOffsetPixels);
-          }
+        if (pageChangeListener != null) {
+            pageChangeListener.onPageScrolled(position, positionOffset, positionOffsetPixels);
+        }
     }
 
     public void setmLineWidth(float mLineWidth) {
@@ -257,7 +284,6 @@ public class LinePagerIndicator extends View implements PagerIndicator {
 
     public int getSelectedColor() {
         return mPaintselected.getColor();
-
     }
 
     @Override
@@ -266,16 +292,236 @@ public class LinePagerIndicator extends View implements PagerIndicator {
         mCurrentPage = position;
         invalidate();
 
-        if(pageChangeListener != null){
-             pageChangeListener.onPageSelected(position);
+        if (pageChangeListener != null) {
+            pageChangeListener.onPageSelected(position);
         }
 
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
-        if(pageChangeListener != null){
+        if (pageChangeListener != null) {
             pageChangeListener.onPageScrollStateChanged(state);
         }
+    }
+
+
+    /**
+     * 重新绘制视图
+     *
+     * @param canvas
+     */
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (mViewPager == null) {
+            return;
+        }
+
+        final int count = mViewPager.getAdapter().getCount();
+        if (count == 0) {
+            return;
+        }
+
+        if (mCurrentPage >= count) {
+            setCurrentItem(count - 1);
+            return;
+        }
+
+        final float lineWidthAndGap = mLineWidth + mGapWidth;
+        final float indicatorWidth = (count * lineWidthAndGap) - mGapWidth;
+        final float paddingTop = getPaddingTop();
+        final float paddingLeft = getPaddingLeft();
+        final float paddingRight = getPaddingRight();
+
+
+        float verticalOffset = paddingTop + ((getHeight() - paddingTop - getPaddingBottom()) / 2.0f);
+        float horizontalOffset = getPaddingLeft();
+
+        //判断指示器是否位于中心位置
+        if (mCentered) {
+            horizontalOffset += ((getWidth() - paddingLeft - paddingRight) / 2.0f) - (indicatorWidth / 2.0f);
+        }
+
+        //绘制图形
+        for (int i = 0; i < count; i++) {
+            float dx1 = horizontalOffset + (i * lineWidthAndGap);
+            float dx2 = dx1 + mLineWidth;
+            canvas.drawLine(dx1, verticalOffset, dx2, verticalOffset, (i == mCurrentPage) ? mPaintselected : mPaintUnselected);
+        }
+
+    }
+
+
+    /**
+     * 设置点击事件的处理逻辑
+     *
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        if (super.onTouchEvent(event)) {
+            return true;
+        }
+        if ((mViewPager == null) || (mViewPager.getAdapter().getCount() == 0)) {
+            return false;
+        }
+
+        /**
+         * ACTION_POINTER_DOWN:有一个非主要的手指按下了
+         * ACTION_POINTER_UP:一个非主要的手指抬起来了
+         * ACTION_MASK & ACTION 结果都是会ACTION_POINTER_DOWN或者ACTION_POINTER_UP
+         */
+        final int action = event.getAction() & MotionEventCompat.ACTION_MASK;
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                //pointerIndex从0到getPointerCount-1,返回一个触摸点的标识,获取第0个
+                mActivePointerId = MotionEventCompat.getPointerId(event, 0);
+                mLastMotionX = event.getX();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                //获取活跃的pointer的信息的index索引
+                final int actionPointerIndex = MotionEventCompat.findPointerIndex(event, mActivePointerId);
+                //获取活跃pointer的x轴的信息
+                final float x = MotionEventCompat.getX(event, actionPointerIndex);
+                //获取x轴的值的改变量
+                final float deltaX = x - mLastMotionX;
+                if (!isDragging) {
+                    final int count = mViewPager.getAdapter().getCount();
+                    final int width = getWidth();
+                    if (Math.abs(deltaX) > mTouchSlop) {
+                        isDragging = true;
+                    }
+                }
+                if (isDragging) {
+                    mLastMotionX = x;
+                    if (mViewPager.isFakeDragging() || mViewPager.beginFakeDrag()) {
+                        mViewPager.fakeDragBy(deltaX);
+                    }
+                }
+
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                //通过点击指示器左右两边实现切换
+                if (!isDragging) {
+                    final int count = mViewPager.getAdapter().getCount();
+                    final int width = getWidth();
+
+                    //设置移动的距离方位
+                    final float halfWidth = width / 2f;
+                    final float sixthWidth = width / 6f;
+                    //设置左点击的事件,向左滑动
+                    if ((mCurrentPage > 0) && (event.getX() < halfWidth - sixthWidth)) {
+                        if (action != MotionEvent.ACTION_CANCEL) {
+                            mViewPager.setCurrentItem(mCurrentPage - 1);
+                        }
+                        return true;
+                    } else if ((mCurrentPage < count - 1) && (event.getX() > halfWidth + sixthWidth)) {
+                        if (action != MotionEvent.ACTION_CANCEL) {
+                            mViewPager.setCurrentItem(mCurrentPage + 1);
+                        }
+                        return true;
+                    }
+                }
+
+                isDragging = false;
+                mActivePointerId = INVALID_POINTER;
+                if (mViewPager.isFakeDragging()) {
+                    mViewPager.endFakeDrag();
+                }
+                break;
+
+            case MotionEventCompat.ACTION_POINTER_DOWN:
+                final int index = MotionEventCompat.getActionIndex(event);
+                mLastMotionX = MotionEventCompat.getX(event, index);
+                mActivePointerId = MotionEventCompat.getPointerId(event, index);
+                break;
+            case MotionEventCompat.ACTION_POINTER_UP:
+                final int pointerIndex = MotionEventCompat.getActionIndex(event);
+                final int pointerId = MotionEventCompat.getPointerId(event, pointerIndex);
+                if (pointerId == mActivePointerId) {
+                    final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
+                    mActivePointerId = MotionEventCompat.getPointerId(event, newPointerIndex);
+                }
+                mLastMotionX = MotionEventCompat.getX(event,
+                        MotionEventCompat.findPointerIndex(event, mActivePointerId));
+                break;
+        }
+
+        return true;
+    }
+
+    /**
+     * 测量视图的大小
+     *
+     * @param widthMeasureSpec
+     * @param heightMeasureSpec
+     */
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        setMeasuredDimension(measureWidth(widthMeasureSpec), measureHeight(heightMeasureSpec));
+    }
+
+
+    /**
+     * 确定视图的宽度
+     *
+     * @param measureSpec
+     * @return
+     */
+    public int measureWidth(int measureSpec) {
+        float result;
+        //获取视图的宽度设定类型
+        int specMode = MeasureSpec.getMode(measureSpec);
+
+        int specSize = MeasureSpec.getSize(measureSpec);
+
+        if ((specMode == MeasureSpec.EXACTLY) || (mViewPager == null)) {
+            //当没有视图时就为实际测量的结果
+            result = specSize;
+        } else {
+            //通过计算得出最终的视图的宽的大小
+            //计算视图的总数
+            final int count = mViewPager.getAdapter().getCount();
+            //计算视图的最终的宽度
+            result = getPaddingLeft() + getPaddingRight() + (count * mLineWidth) + ((count - 1) * mGapWidth);
+
+            //如果视图的类型为AT_MOST(如:wrap_content)
+            if (specMode == MeasureSpec.AT_MOST) {
+                result = Math.min(result, specSize);
+            }
+        }
+        return (int) Math.ceil(result);
+    }
+
+
+    /**
+     * 确定视图的高度
+     *
+     * @param measureSpec
+     * @return
+     */
+    public int measureHeight(int measureSpec) {
+        float result;
+        int specMode = MeasureSpec.getMode(measureSpec);
+        int specSize = MeasureSpec.getSize(measureSpec);
+        if (specMode == MeasureSpec.EXACTLY) {
+            result = specSize;
+        } else {
+
+            //测量高度
+            result = mPaintselected.getStrokeWidth() + getPaddingTop() + getPaddingBottom();
+
+            //如果视图的类型为AT_MOST,(如：wrap_content)
+            if (specMode == MeasureSpec.AT_MOST) {
+                result = Math.min(result, specSize);
+            }
+
+        }
+
+        return (int) Math.ceil(result);
     }
 }

@@ -4,6 +4,7 @@
     <!-- 自定义指定器样式-->
     <style name="StyledIndicator" parent="@android:style/Theme.Light">
         <item name="vpiTabPagerIndicatorStyle">@style/CustomTabPagerIndicator</item>
+        <item name="vpiLinePagerIndicatorStyle">@style/CustomLinePagerIndicator</item>
     </style>
 
 
@@ -27,4 +28,14 @@
     <style name="CustomTabPagerIndicator.Text" parent="android:TextAppearance.Medium">
         <item name="android:typeface">monospace</item>
     </style>
+
+    <!-- 自定义样式的lines指示器-->
+    <style name="CustomLinePagerIndicator">
+        <item name="strokeWidth">4dp</item>
+        <item name="lineWidth">30dp</item>
+        <item name="unselectedColor">#FF888888</item>
+        <item name="selectedColor">#FF880000</item>
+    </style>
+
+
 </resources>

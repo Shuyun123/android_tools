@@ -63,6 +63,49 @@
 
         </activity>
 
+
+        <!-- Lines指示器-->
+
+        <activity
+            android:name=".Lines.SampleLinesDefault"
+            android:label="Lines/Default">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Lines.SampleLinesStyledLayout"
+            android:label="Lines/Styled (Layout)"
+            android:theme="@android:style/Theme.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Lines.SampleLinesStyledMethods"
+            android:label="Lines/Styled (Methods)"
+            android:theme="@android:style/Theme.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Lines.SampleLinesStyledTheme"
+            android:label="Lines/Styled (Theme)"
+            android:theme="@style/StyledIndicator">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+
     </application>
 
 </manifest>

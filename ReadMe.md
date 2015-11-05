@@ -43,7 +43,9 @@
                |
                +---------- IconPagerIndicator.java ------ 图标指示器类
                |
-               +---------- LinePagerIndicator.java ------ 线条指示器类               
+               +---------- LinePagerIndicator.java ------ 线条指示器类  
+               |
+               +---------- UnderlineIndicator.java ------ 下划线指示器             
     
       该源码来自大神[Jake Wharton](https://github.com/JakeWharton/ViewPagerIndicator/)
       重新覆写,并添加中文注释(英语不好,欢迎指正*_-)

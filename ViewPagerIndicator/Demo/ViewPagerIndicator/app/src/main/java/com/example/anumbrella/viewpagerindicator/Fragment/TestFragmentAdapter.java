@@ -18,7 +18,7 @@ public class TestFragmentAdapter extends FragmentPagerAdapter implements IconPag
     /**
      * ViewPager页面显示的内容
      */
-    private static final String[] CONTENT = new String[]{"这个", "是一", "图片", "指示器"};
+    private static final String[] CONTENT = new String[]{"这个", "是一", "测试", "指示器"};
 
     /**
      * tabs选项的图片

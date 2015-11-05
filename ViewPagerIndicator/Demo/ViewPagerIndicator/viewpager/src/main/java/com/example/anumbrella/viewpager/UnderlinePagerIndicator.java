@@ -32,40 +32,44 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 /**
- * Created by anumbrella on 15/10/20.
+ * Created by anumbrella on 15-11-4.
  * <p/>
- * 线条指示器
  * <p/>
  * 来源于Jake Wharton,查看源码,覆写并添加中文注释
  * <p/>
- * LinePagerIndicator绘制下划线为每个页面，当选中该页面时线条颜色会相应进行改变
+ * UnderlinePagerIndicator绘制线条为当前选中的每一个页面
  */
-public class LinePagerIndicator extends View implements PagerIndicator {
+public class UnderlinePagerIndicator extends View implements PagerIndicator {
 
 
     /**
      * 设置无效的触点值
      */
-    private final int INVALID_POINTER = -1;
+    private static final int INVALID_POINTER = -1;
 
 
     /**
-     * 设置指示器的宽度
+     * 每次线程再次进行操作的时间
      */
-    private float mLineWidth;
+    private static final int FADE_TIME = 30;
 
 
     /**
-     * 设置指示器间的间隔距离
+     * 指示器是否消失
      */
-    private float mGapWidth;
-
+    private boolean mFades;
 
     /**
-     * 指示器是否在屏幕的中央显示
+     * 指示器消失的时间
      */
-    private boolean mCentered;
+    private int mFadeDelay;
 
+    /**
+     * 定义指示器的长度
+     */
+    private int mFadeLength;
+
+    private ViewPager mViewPager;
 
     /**
      * 设置ViewPager页面滑动改变的监听类
@@ -74,15 +78,9 @@ public class LinePagerIndicator extends View implements PagerIndicator {
 
 
     /**
-     * 设置画笔保真
+     * 当前选中的页面
      */
-    private final Paint mPaintUnselected = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-
-    /**
-     * 设置画笔保真
-     */
-    private final Paint mPaintSelected = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private int mCurrentPage;
 
 
     /**
@@ -90,12 +88,17 @@ public class LinePagerIndicator extends View implements PagerIndicator {
      */
     private int mTouchSlop;
 
-    private ViewPager mViewPager;
 
     /**
-     * 当前页面索引
+     * 设置画笔保真
      */
-    private int mCurrentPage;
+    private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+
+    /**
+     * 设置拖动的标识
+     */
+    private boolean isDragging = false;
 
 
     /**
@@ -111,23 +114,56 @@ public class LinePagerIndicator extends View implements PagerIndicator {
 
 
     /**
-     * 设置拖动的标识
+     * 每次透明度减少的值
      */
-    private boolean isDragging = false;
+    private int mFadeBy;
 
 
+    /**
+     * 每次滑动偏移页面的百分比
+     */
+    private float mPositionOffset;
 
-    public LinePagerIndicator(Context context) {
+
+    /**
+     * 定义一个线程对指示器每次透明度的值进行操作
+     */
+    private final Runnable mFadeRunable = new Runnable() {
+        @Override
+        public void run() {
+            if (!mFades) {
+                return;
+            }
+            //每次取相减过后的最大值，直到最后的值为0
+            final int alpha = Math.max(mPaint.getAlpha() - mFadeBy, 0);
+            mPaint.setAlpha(alpha);
+            invalidate();
+            //如何透明度的值大于0，不停的执行线程操作
+            if (alpha > 0) {
+                postDelayed(this, FADE_TIME);
+            }
+        }
+    };
+
+
+    /**
+     * 页面滑动的状态标识
+     */
+    private int mScrollState;
+
+    public UnderlinePagerIndicator(Context context) {
         this(context, null);
     }
 
-    public LinePagerIndicator(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.vpiLinePagerIndicatorStyle);
+
+    public UnderlinePagerIndicator(Context context, AttributeSet attrs) {
+        this(context, attrs, R.attr.vpiUnderlinePagerIndicatorStyle);
     }
 
 
-    public LinePagerIndicator(Context context, AttributeSet attrs, int defStyle) {
+    public UnderlinePagerIndicator(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+
         //解决自定义视图无法编辑预览报错时调用
         if (isInEditMode()) {
             return;
@@ -136,194 +172,126 @@ public class LinePagerIndicator extends View implements PagerIndicator {
         //获取资源对象
         final Resources res = getResources();
 
-        //加载默认设置属性
-        //选中当前的指示器的颜色
-        final int defaultSelectedColor = res.getColor(R.color.default_line_indicator_selected_color);
-        //没有选中的指示器的颜色
-        final int defaultUnselectedColor = res.getColor(R.color.default_line_indicator_unselected_color);
-        //线指示器的宽度
-        final float defalutLineWidth = res.getDimension(R.dimen.default_line_indicator_line_width);
-        //线指示器之间的间隔距离
-        final float defalutGapWidth = res.getDimension(R.dimen.default_line_indicator_gap_width);
-        //设置指示器的高度
-        final float defalutStrokeWidth = res.getDimension(R.dimen.default_line_indicator_stroke_width);
-        //指示器是否在屏幕中央显示
-        final boolean defaultCentered = res.getBoolean(R.bool.default_line_indicator_centered);
-        //加载xml中设置的属性
-        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.LinePagerIndicator, defStyle, 0);
+        //加载默认的属性设置
+        //指示器是否消失
+        final boolean defaultFades = res.getBoolean(R.bool.default_underline_indicator_fades);
+        //指示器消失的时间
+        final int defaultFadeDelay = res.getInteger(R.integer.default_underline_indicator_fade_delay);
+        //指示器线的长度
+        final int defaultFadeLength = res.getInteger(R.integer.default_underline_indicator_fade_length);
+        //选中当前页面指示器显示的颜色
+        final int defaultSelectedColor = res.getColor(R.color.default_underline_indicator_selected_color);
 
-        mCentered = array.getBoolean(R.styleable.LinePagerIndicator_centered, defaultCentered);
-        mLineWidth = array.getDimension(R.styleable.LinePagerIndicator_lineWidth, defalutLineWidth);
-        mGapWidth = array.getDimension(R.styleable.LinePagerIndicator_gapWidth, defalutGapWidth);
-        //设置指示器线条的高度
-        setStrokeWidth(array.getDimension(R.styleable.LinePagerIndicator_strokeWidth, defalutStrokeWidth));
-        mPaintUnselected.setColor(array.getColor(R.styleable.LinePagerIndicator_unselectedColor, defaultUnselectedColor));
-        mPaintSelected.setColor(array.getColor(R.styleable.LinePagerIndicator_selectedColor, defaultSelectedColor));
 
-        Drawable background = array.getDrawable(R.styleable.LinePagerIndicator_android_background);
+        //获取在布局xml中定义的属性
+        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.UnderlinePagerIndicator, defStyle, 0);
 
-        //设置指示器的背景图片
+        setFades(array.getBoolean(R.styleable.UnderlinePagerIndicator_fades, defaultFades));
+        setSelectedColor(array.getColor(R.styleable.UnderlinePagerIndicator_selectedColor, defaultSelectedColor));
+        setFadeDelay(array.getInteger(R.styleable.UnderlinePagerIndicator_fadeDelay, defaultFadeDelay));
+        setFadeLength(array.getInteger(R.styleable.UnderlinePagerIndicator_fadeLength, defaultFadeLength));
+
+        Drawable background = array.getDrawable(R.styleable.UnderlinePagerIndicator_android_background);
         if (background != null) {
             setBackgroundDrawable(background);
         }
         array.recycle();
+
         final ViewConfiguration configuration = ViewConfiguration.get(context);
         //设置手势移动的距离最小触发点距离(即：一个距离，表示滑动的时候，手的移动要大于这个距离才开始移动控件。)
         mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
-
     }
 
-    @Override
-    public void setViewPager(ViewPager viewPager) {
-        if (mViewPager == viewPager) {
-            return;
-        }
-
-        if (mViewPager != null) {
-            mViewPager.setOnPageChangeListener(null);
-        }
-
-        if (viewPager.getAdapter() == null) {
-            throw new IllegalStateException("ViewPager dose not have adapter instance!");
-        }
-
-        mViewPager = viewPager;
-        //设置ViewPage页面监听
-        mViewPager.setOnPageChangeListener(this);
-        invalidate();
-    }
-
-    @Override
-    public void setViewPager(ViewPager viewPager, int initialPosition) {
-        setViewPager(viewPager);
-        setCurrentItem(initialPosition);
-    }
-
-    @Override
-    public void setCurrentItem(int item) {
-
-        if (mViewPager == null) {
-            throw new IllegalStateException("ViewPager has not been found!");
-        }
-        mViewPager.setCurrentItem(item);
-        mCurrentPage = item;
-        invalidate();
-    }
-
-    @Override
-    public void setOnPageChangeListener(ViewPager.OnPageChangeListener listener) {
-        pageChangeListener = listener;
-    }
-
-    @Override
-    public void notifyDataSetChanged() {
-        invalidate();
-    }
-
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        if (pageChangeListener != null) {
-            pageChangeListener.onPageScrolled(position, positionOffset, positionOffsetPixels);
-        }
-    }
-
-    public void setLineWidth(float mLineWidth) {
-        this.mLineWidth = mLineWidth;
-        invalidate();
-    }
-
-
-    public void setCentered(boolean mCentered) {
-        this.mCentered = mCentered;
-        invalidate();
-    }
-
-    public void setGapWidth(float mGapWidth) {
-        this.mGapWidth = mGapWidth;
-        invalidate();
-    }
 
     /**
-     * 设置画笔的宽度，即指示器线的高度
+     * 设置指示器是否消失
      *
-     * @param lineHeight
+     * @param isFades
      */
-    public void setStrokeWidth(float lineHeight) {
-        mPaintSelected.setStrokeWidth(lineHeight);
-        mPaintUnselected.setStrokeWidth(lineHeight);
-        invalidate();
+    public void setFades(boolean isFades) {
+        if (mFades != isFades) {
+            mFades = isFades;
+            if (mFades) {
+                post(mFadeRunable);
+            } else {
+                //指示器不消失,删除线程操作
+                removeCallbacks(mFadeRunable);
+                /**
+                 * 取值范围是0---255,数值越小，越透明，颜色上表现越淡
+                 * 0xFF = 255
+                 */
+                mPaint.setAlpha(0xFF);
+                invalidate();
+            }
+        }
     }
+
 
     /**
-     * 获取画笔的宽度,即指示器线条的高度
+     * 设置指示器消失的时长
      *
-     * @return
+     * @param fadeDelay
      */
-    public float getStrokeWidth() {
-        return mPaintSelected.getStrokeWidth();
+    public void setFadeDelay(int fadeDelay) {
+        mFadeDelay = fadeDelay;
     }
 
 
-    public void setUnselectedColor(int unselectedColor) {
-        mPaintUnselected.setColor(unselectedColor);
-        invalidate();
+    /**
+     * 设置指示器的长度
+     *
+     * @param fadeLength
+     */
+    public void setFadeLength(int fadeLength) {
+        mFadeLength = fadeLength;
+
+        //定义每次透明度减少的值
+        // 0xFF = 255 ,
+        // 默认值:mFadeLength = 400 ; FADE_TIME = 30
+        // mFadeBy = 19.125
+        // mFadeBy最终为19
+        mFadeBy = 0xFF / (mFadeLength / FADE_TIME);
     }
 
+
+    /**
+     * 设置指示器选中页面时的颜色
+     *
+     * @param selectedColor
+     */
 
     public void setSelectedColor(int selectedColor) {
-        mPaintSelected.setColor(selectedColor);
+        mPaint.setColor(selectedColor);
         invalidate();
     }
 
-    public boolean isCentered() {
-        return mCentered;
-    }
 
-    public float getGapWidth() {
-        return mGapWidth;
-    }
-
-    public float getLineWidth() {
-        return mLineWidth;
+    public boolean getFades() {
+        return mFades;
     }
 
 
-    public int getUnselectedColor() {
-        return mPaintUnselected.getColor();
+    public int getFadeDelay() {
+        return mFadeDelay;
+    }
+
+    public int getFadeLength() {
+        return mFadeLength;
     }
 
     public int getSelectedColor() {
-        return mPaintSelected.getColor();
-    }
-
-    @Override
-
-    public void onPageSelected(int position) {
-        mCurrentPage = position;
-        invalidate();
-
-        if (pageChangeListener != null) {
-            pageChangeListener.onPageSelected(position);
-        }
-
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-        if (pageChangeListener != null) {
-            pageChangeListener.onPageScrollStateChanged(state);
-        }
+        return mPaint.getColor();
     }
 
 
     /**
-     * 重新绘制视图
-     *
-     * @param canvas
+     * 绘制下划线指示器
      */
     @Override
     protected void onDraw(Canvas canvas) {
+
         super.onDraw(canvas);
+
         if (mViewPager == null) {
             return;
         }
@@ -338,32 +306,20 @@ public class LinePagerIndicator extends View implements PagerIndicator {
             return;
         }
 
-        final float lineWidthAndGap = mLineWidth + mGapWidth;
-        final float indicatorWidth = (count * lineWidthAndGap) - mGapWidth;
-        final float paddingTop = getPaddingTop();
         final float paddingLeft = getPaddingLeft();
         final float paddingRight = getPaddingRight();
-
-
-        float verticalOffset = paddingTop + ((getHeight() - paddingTop - getPaddingBottom()) / 2.0f);
-        float horizontalOffset = paddingLeft;
-
-        //判断指示器是否位于中心位置
-        if (mCentered) {
-            horizontalOffset += ((getWidth() - paddingLeft - paddingRight) / 2.0f) - (indicatorWidth / 2.0f);
-        }
-
-        //绘制图形
-        for (int i = 0; i < count; i++) {
-            float dx1 = horizontalOffset + (i * lineWidthAndGap);
-            float dx2 = dx1 + mLineWidth;
-            canvas.drawLine(dx1, verticalOffset, dx2, verticalOffset, (i == mCurrentPage) ? mPaintSelected : mPaintUnselected);
-        }
+        final float pageWidth = (getWidth() - paddingLeft - paddingRight) / (1f * count);
+        final float left = paddingLeft + pageWidth * (mCurrentPage + mPositionOffset);
+        final float top = getPaddingTop();
+        final float bottom = getHeight() - getPaddingBottom();
+        final float right = left + pageWidth;
+        //绘制下划线
+        canvas.drawRect(left, top, right, bottom, mPaint);
     }
 
 
     /**
-     * 设置点击事件的处理逻辑
+     * 屏幕手势操作的判断
      *
      * @param event
      * @return
@@ -374,6 +330,7 @@ public class LinePagerIndicator extends View implements PagerIndicator {
         if (super.onTouchEvent(event)) {
             return true;
         }
+
         if ((mViewPager == null) || (mViewPager.getAdapter().getCount() == 0)) {
             return false;
         }
@@ -384,6 +341,7 @@ public class LinePagerIndicator extends View implements PagerIndicator {
          * ACTION_MASK & ACTION 结果都是会ACTION_POINTER_DOWN或者ACTION_POINTER_UP
          */
         final int action = event.getAction() & MotionEventCompat.ACTION_MASK;
+
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 //getPointerId从0到getPointerCount-1,返回一个触摸点的标识,默认获取第0个
@@ -397,6 +355,7 @@ public class LinePagerIndicator extends View implements PagerIndicator {
                 final float x = MotionEventCompat.getX(event, activePointerIndex);
                 //获取x轴的值的改变量
                 final float deltaX = x - mLastMotionX;
+
                 if (!isDragging) {
                     if (Math.abs(deltaX) > mTouchSlop) {
                         isDragging = true;
@@ -408,10 +367,10 @@ public class LinePagerIndicator extends View implements PagerIndicator {
                         mViewPager.fakeDragBy(deltaX);
                     }
                 }
-
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+
                 //通过点击指示器左右两边实现切换
                 if (!isDragging) {
                     final int count = mViewPager.getAdapter().getCount();
@@ -440,7 +399,6 @@ public class LinePagerIndicator extends View implements PagerIndicator {
                     mViewPager.endFakeDrag();
                 }
                 break;
-
             case MotionEventCompat.ACTION_POINTER_DOWN:
                 final int index = MotionEventCompat.getActionIndex(event);
                 mLastMotionX = MotionEventCompat.getX(event, index);
@@ -457,80 +415,109 @@ public class LinePagerIndicator extends View implements PagerIndicator {
                         MotionEventCompat.findPointerIndex(event, mActivePointerId));
                 break;
         }
-
         return true;
     }
 
-    /**
-     * 测量视图的大小
-     *
-     * @param widthMeasureSpec
-     * @param heightMeasureSpec
-     */
+
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(measureWidth(widthMeasureSpec), measureHeight(heightMeasureSpec));
-    }
-
-
-    /**
-     * 确定视图的宽度
-     *
-     * @param measureSpec
-     * @return
-     */
-    public int measureWidth(int measureSpec) {
-        float result;
-        //获取视图的宽度设定类型
-        int specMode = MeasureSpec.getMode(measureSpec);
-
-        int specSize = MeasureSpec.getSize(measureSpec);
-
-        if ((specMode == MeasureSpec.EXACTLY) || (mViewPager == null)) {
-            //当没有视图时就为实际测量的结果
-            result = specSize;
-        } else {
-            //通过计算得出最终的视图的宽的大小
-            //计算视图的总数
-            final int count = mViewPager.getAdapter().getCount();
-            //计算视图的最终的宽度
-            result = getPaddingLeft() + getPaddingRight() + (count * mLineWidth) + ((count - 1) * mGapWidth);
-
-            //如果视图的类型为AT_MOST(如:wrap_content)
-            if (specMode == MeasureSpec.AT_MOST) {
-                result = Math.min(result, specSize);
-            }
-        }
-        return (int) Math.ceil(result);
-    }
-
-
-    /**
-     * 确定视图的高度
-     *
-     * @param measureSpec
-     * @return
-     */
-    public int measureHeight(int measureSpec) {
-        float result;
-        int specMode = MeasureSpec.getMode(measureSpec);
-        int specSize = MeasureSpec.getSize(measureSpec);
-        if (specMode == MeasureSpec.EXACTLY) {
-            result = specSize;
-        } else {
-
-            //测量高度
-            result = mPaintSelected.getStrokeWidth() + getPaddingTop() + getPaddingBottom();
-
-            //如果视图的类型为AT_MOST,(如：wrap_content)
-            if (specMode == MeasureSpec.AT_MOST) {
-                result = Math.min(result, specSize);
-            }
-
+    public void setViewPager(ViewPager viewPager) {
+        if (viewPager == mViewPager) {
+            return;
         }
 
-        return (int) Math.ceil(result);
+        if (mViewPager != null) {
+            //清除先前绑定的监听
+            mViewPager.setOnPageChangeListener(null);
+        }
+
+        if (viewPager.getAdapter() == null) {
+            throw new IllegalStateException("ViewPager dose not have adapter instance!");
+        }
+
+        mViewPager = viewPager;
+        //设置本页面的监听
+        mViewPager.setOnPageChangeListener(this);
+        invalidate();
+        //开始指示器消失操作
+        post(new Runnable() {
+            @Override
+            public void run() {
+                if (mFades) {
+                    post(mFadeRunable);
+                }
+            }
+        });
     }
+
+    @Override
+    public void setViewPager(ViewPager viewPager, int initialPosition) {
+        setViewPager(viewPager);
+        setCurrentItem(initialPosition);
+    }
+
+    @Override
+    public void setCurrentItem(int item) {
+        if (mViewPager == null) {
+            throw new IllegalStateException("ViewPager has not been found!");
+        }
+        mCurrentPage = item;
+        mViewPager.setCurrentItem(item);
+        invalidate();
+    }
+
+    @Override
+    public void setOnPageChangeListener(ViewPager.OnPageChangeListener listener) {
+        pageChangeListener = listener;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        invalidate();
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        mCurrentPage = position;
+        mPositionOffset = positionOffset;
+        if (mFades) {
+            //如果在滑动就取消指示器消失操作
+            if (positionOffsetPixels > 0) {
+                removeCallbacks(mFadeRunable);
+                mPaint.setAlpha(0xFF);
+                //如何没有在进行滑动,就进行指示器消失操作
+            } else if (mScrollState != ViewPager.SCROLL_STATE_DRAGGING) {
+                postDelayed(mFadeRunable, mFadeDelay);
+            }
+        }
+        invalidate();
+
+        if (pageChangeListener != null) {
+            pageChangeListener.onPageScrolled(position, positionOffset, positionOffsetPixels);
+        }
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        //活动页面状态是空闲的
+        if (mScrollState == ViewPager.SCROLL_STATE_IDLE) {
+            mCurrentPage = position;
+            mPositionOffset = 0;
+            invalidate();
+            mFadeRunable.run();
+        }
+        if (pageChangeListener != null) {
+            pageChangeListener.onPageSelected(position);
+        }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+        mScrollState = state;
+        if (pageChangeListener != null) {
+            pageChangeListener.onPageScrollStateChanged(state);
+        }
+    }
+
 
     /**
      * 获取先前保存的视图状态
@@ -556,7 +543,6 @@ public class LinePagerIndicator extends View implements PagerIndicator {
         SavedState savedState = new SavedState(superState);
         savedState.currentPage = mCurrentPage;
         return savedState;
-
     }
 
 
@@ -594,8 +580,5 @@ public class LinePagerIndicator extends View implements PagerIndicator {
                 return new SavedState[size];
             }
         };
-
-
     }
-
 }

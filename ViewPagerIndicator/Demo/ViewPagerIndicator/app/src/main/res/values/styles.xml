@@ -5,6 +5,7 @@
     <style name="StyledIndicator" parent="@android:style/Theme.Light">
         <item name="vpiTabPagerIndicatorStyle">@style/CustomTabPagerIndicator</item>
         <item name="vpiLinePagerIndicatorStyle">@style/CustomLinePagerIndicator</item>
+        <item name="vpiUnderlinePagerIndicatorStyle">@style/CustomUnderlinePagerIndicator</item>
     </style>
 
 
@@ -35,6 +36,14 @@
         <item name="lineWidth">30dp</item>
         <item name="unselectedColor">#FF888888</item>
         <item name="selectedColor">#FF880000</item>
+    </style>
+
+    <!-- 自定义样式的underlines指示器-->
+    <style name="CustomUnderlinePagerIndicator">
+        <item name="selectedColor">#FFCC0000</item>
+        <item name="android:background">#FFCCCCCC</item>
+        <item name="fadeLength">1000</item>
+        <item name="fadeDelay">1000</item>
     </style>
 
 

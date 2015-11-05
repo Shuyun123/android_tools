@@ -106,6 +106,58 @@
         </activity>
 
 
+        <!-- Underlines指示器-->
+
+        <activity
+            android:name=".Underlines.SampleUnderlinesDefault"
+            android:label="Underlines/Default">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Underlines.SampleUnderlinesNoFade"
+            android:label="Underlines/NoFade">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+
+        <activity
+            android:name=".Underlines.SampleUnderlinesStyledLayout"
+            android:label="Underlines/StyledLayout"
+            android:theme="@android:style/Theme.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Underlines.SampleUnderlinesStyledMethods"
+            android:label="Underlines/StyledMethods"
+            android:theme="@android:style/Theme.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Underlines.SampleUnderlinesStyledTheme"
+            android:label="Underlines/StyledTheme"
+            android:theme="@style/StyledIndicator">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+
     </application>
 
 </manifest>

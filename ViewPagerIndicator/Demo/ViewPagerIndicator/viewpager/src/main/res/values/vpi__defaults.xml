@@ -9,4 +9,11 @@
     <color name="default_line_indicator_selected_color">#FF33B5E5</color>
     <color name="default_line_indicator_unselected_color">#FFBBBBBB</color>
     <bool name="default_line_indicator_centered">true</bool>
+
+
+    <!-- underline指示器的默认样式设置-->
+    <bool name="default_underline_indicator_fades">true</bool>
+    <integer name="default_underline_indicator_fade_delay">300</integer>
+    <integer name="default_underline_indicator_fade_length">400</integer>
+    <color name="default_underline_indicator_selected_color">#FF33B5E5</color>
 </resources>

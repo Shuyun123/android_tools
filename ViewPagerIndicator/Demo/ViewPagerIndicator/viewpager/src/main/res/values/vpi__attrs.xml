@@ -11,28 +11,44 @@
         <!-- line指示器的样式 -->
         <attr name="vpiLinePagerIndicatorStyle" format="reference" />
 
+        <!-- underline指示器样式-->
+        <attr name="vpiUnderlinePagerIndicatorStyle" format="reference" />
+
     </declare-styleable>
 
 
-    <!--在xml中定义Line指示器的属性-->
+    <!--在xml中定义Line指示器可以定义的属性-->
     <declare-styleable name="LinePagerIndicator">
 
         <!--设置指示器是否在中心属性-->
-        <attr name="centered" format="boolean"/>
+        <attr name="centered" format="boolean" />
         <!--设置没有选择指示器时的颜色-->
-        <attr name="unselectedColor" format="color"/>
+        <attr name="unselectedColor" format="color" />
         <!--设置选择指示器时的颜色-->
-        <attr name="selectedColor" format="color"/>
+        <attr name="selectedColor" format="color" />
         <!-- 设置指示器线长的宽度-->
         <attr name="lineWidth" format="dimension" />
         <!--设置画笔的宽度-->
         <attr name="strokeWidth" format="dimension" />
         <!--设置指示器之间的间隔距离-->
         <attr name="gapWidth" format="dimension" />
-        <!--设置视图的背景-->
+        <!--设置指示器视图背景-->
         <attr name="android:background" />
 
     </declare-styleable>
 
+    <!-- 在xml中定义Underline指示器可以定义的属性-->
+    <declare-styleable name="UnderlinePagerIndicator">
+        <!-- 选中页面是否指示器消失标识-->
+        <attr name="fades" format="boolean" />
+        <!-- 消失延迟时间-->
+        <attr name="fadeDelay" format="integer" />
+        <!-- 指示器变为透明的长度-->
+        <attr name="fadeLength" format="integer" />
+        <!-- 当前页面选中时指示器的颜色-->
+        <attr name="selectedColor" />
+        <!-- 设置指示器视图背景-->
+        <attr name="android:background" />
+    </declare-styleable>
 
 </resources>

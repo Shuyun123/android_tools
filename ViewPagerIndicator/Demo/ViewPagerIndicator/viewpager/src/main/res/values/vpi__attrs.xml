@@ -11,8 +11,11 @@
         <!-- line指示器的样式 -->
         <attr name="vpiLinePagerIndicatorStyle" format="reference" />
 
-        <!-- underline指示器样式-->
+        <!-- underline指示器的样式-->
         <attr name="vpiUnderlinePagerIndicatorStyle" format="reference" />
+
+        <!-- circle指示器的样式-->
+        <attr name="vpiCirclePagerIndicatorStyle" format="reference" />
 
     </declare-styleable>
 
@@ -29,7 +32,7 @@
         <!-- 设置指示器线长的宽度-->
         <attr name="lineWidth" format="dimension" />
         <!--设置画笔的宽度-->
-        <attr name="strokeWidth" format="dimension" />
+        <attr name="strokeWidth" format="dimension"/>
         <!--设置指示器之间的间隔距离-->
         <attr name="gapWidth" format="dimension" />
         <!--设置指示器视图背景-->
@@ -48,6 +51,29 @@
         <!-- 当前页面选中时指示器的颜色-->
         <attr name="selectedColor" />
         <!-- 设置指示器视图背景-->
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- 在xml中定义Circle指示器可以定义的属性-->
+    <declare-styleable name="CirclePagerIndicator">
+
+        <!-- 设置指示器是否在中心的属性-->
+        <attr name="centered" />
+        <!-- 设置选中页面时当前页面指示器器被填充的颜色 -->
+        <attr name="fillColor" format="color" />
+        <!-- 设置指示器圆圈被填充颜色的属性-->
+        <attr name="pageColor" format="color" />
+        <!-- 设置页面当中指示器布局的方向-->
+        <attr name="android:orientation" />
+        <!-- 设置页面当中指示器圆圈的半径大小-->
+        <attr name="radius" format="dimension" />
+        <!-- 设置页面指示器页面切换是否快速切换-->
+        <attr name="snap" format="boolean" />
+        <!-- 设置指示器绘制画笔的颜色属性-->
+        <attr name="strokeColor" format="color" />
+        <!-- 设置指示器当中画圆圈的画笔宽度属性-->
+        <attr name="strokeWidth"/>
+        <!--设置指示器视图背景-->
         <attr name="android:background" />
     </declare-styleable>
 

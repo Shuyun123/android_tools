@@ -157,6 +157,74 @@
             </intent-filter>
         </activity>
 
+        <!-- Circles指示器-->
+        <activity
+            android:name=".Circles.SampleCirclesDefault"
+            android:label="Circles/Default">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Circles.SampleCirclesInitialPage"
+            android:label="Circles/InitialPage">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Circles.SampleCirclesStyledLayout"
+            android:label="Circles/StyledLayout"
+            android:theme="@android:style/Theme.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Circles.SampleCirclesStyledMethods"
+            android:label="Circles/StyledMethods"
+            android:theme="@android:style/Theme.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Circles.SampleCirclesStyledTheme"
+            android:label="Circles/StyledTheme"
+            android:theme="@style/StyledIndicator">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Circles.SampleCirclesWithListener"
+            android:label="Circles/WidthListener">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Circles.SampleCirclesSnap"
+            android:label="Circles/Snap"
+            android:theme="@android:style/Theme.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
 
     </application>
 

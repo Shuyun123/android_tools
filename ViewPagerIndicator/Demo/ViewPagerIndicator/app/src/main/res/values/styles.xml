@@ -6,6 +6,7 @@
         <item name="vpiTabPagerIndicatorStyle">@style/CustomTabPagerIndicator</item>
         <item name="vpiLinePagerIndicatorStyle">@style/CustomLinePagerIndicator</item>
         <item name="vpiUnderlinePagerIndicatorStyle">@style/CustomUnderlinePagerIndicator</item>
+        <item name="vpiCirclePagerIndicatorStyle">@style/CustomCirclePagerIndicator</item>
     </style>
 
 
@@ -44,6 +45,15 @@
         <item name="android:background">#FFCCCCCC</item>
         <item name="fadeLength">1000</item>
         <item name="fadeDelay">1000</item>
+    </style>
+
+    <!-- 自定义样式的circles指示器-->
+    <style name="CustomCirclePagerIndicator">
+        <item name="fillColor">#FF888888</item>
+        <item name="strokeColor">#FF000000</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="radius">10dp</item>
+        <item name="centered">true</item>
     </style>
 
 

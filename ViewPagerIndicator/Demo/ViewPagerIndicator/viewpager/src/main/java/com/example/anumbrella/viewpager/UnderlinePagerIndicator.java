@@ -112,7 +112,6 @@ public class UnderlinePagerIndicator extends View implements PagerIndicator {
      */
     private float mLastMotionX = -1;
 
-
     /**
      * 每次透明度减少的值
      */
@@ -123,6 +122,12 @@ public class UnderlinePagerIndicator extends View implements PagerIndicator {
      * 每次滑动偏移页面的百分比
      */
     private float mPositionOffset;
+
+
+    /**
+     * 页面滑动的状态标识
+     */
+    private int mScrollState;
 
 
     /**
@@ -143,13 +148,9 @@ public class UnderlinePagerIndicator extends View implements PagerIndicator {
                 postDelayed(this, FADE_TIME);
             }
         }
+
     };
 
-
-    /**
-     * 页面滑动的状态标识
-     */
-    private int mScrollState;
 
     public UnderlinePagerIndicator(Context context) {
         this(context, null);

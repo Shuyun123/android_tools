@@ -147,6 +147,7 @@ public class CirclePagerIndicator extends View implements PagerIndicator {
     private boolean mSnap;
 
 
+
     public CirclePagerIndicator(Context context) {
         this(context, null);
     }
@@ -201,7 +202,7 @@ public class CirclePagerIndicator extends View implements PagerIndicator {
         mPaintFill.setColor(array.getColor(R.styleable.CirclePagerIndicator_fillColor, defaultFillColor));
         //设置画笔的颜色
         mPaintStroke.setColor(array.getColor(R.styleable.CirclePagerIndicator_strokeColor, defaultStrokeColor));
-        //设置画笔为空心填充
+        //设置画笔为空心填充(仅仅描边)
         mPaintStroke.setStyle(Paint.Style.STROKE);
         //设置画笔的宽度
         mPaintStroke.setStrokeWidth(array.getDimension(R.styleable.CirclePagerIndicator_strokeWidth, defaultStrokeWidth));

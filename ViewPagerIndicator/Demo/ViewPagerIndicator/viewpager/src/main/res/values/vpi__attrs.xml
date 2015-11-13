@@ -92,7 +92,7 @@
         <!-- 指示器和上下边缘线的颜色-->
         <attr name="footerColor" format="color" />
 
-        <!-- -->
+        <!-- 屏幕上下边缘线的高度-->
         <attr name="footerLineHeight" format="dimension" />
 
         <!-- 指示器下划线样式,默认样式为下滑线-->
@@ -108,7 +108,7 @@
         <!--指示器下滑线距离左右两边的内边距-->
         <attr name="footerIndicatorUnderlinePadding" format="dimension" />
 
-        <!-- -->
+        <!--指示器到标题的下方的距离 -->
         <attr name="footerPadding" format="dimension" />
 
         <!--指示器的布局方位-->

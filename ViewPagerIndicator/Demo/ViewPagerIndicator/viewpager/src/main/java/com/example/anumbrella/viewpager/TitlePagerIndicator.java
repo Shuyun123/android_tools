@@ -5,6 +5,8 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Rect;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.ViewPager;
@@ -12,6 +14,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+
+import java.util.ArrayList;
 
 /**
  * Created by anumbrella on 15-11-8.
@@ -118,12 +122,45 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
      */
     private static final int INVALID_POINTER = -1;
 
+
+    /**
+     * 设置标题，当没有从adapter中获取到标题时使用
+     */
+    private static final String EMPTY_TITLE = "";
+
+    /**
+     * 设定滑动指示器消失的屏幕的百分比值,0.25f表示屏幕的1/4
+     */
+    private static final float SELECTION_FADE_PERCENTAGE = 0.25f;
+
+    /**
+     * 设置滑动指示器字体加粗消失的百分比
+     */
+    private static final float BOLD_FADE_PERCENTAGE = 0.05f;
+
     private ViewPager mViewPager;
 
     /**
      * ViewPager选择改变监听器
      */
     private ViewPager.OnPageChangeListener pageChangeListener;
+
+    /**
+     * 屏幕滑动偏移百分比
+     */
+    private float mPositionOffset;
+
+
+    /**
+     * 屏幕两边的内边距(padding)
+     */
+    private float mClipPadding;
+
+
+    /**
+     * 标题距离屏幕上方的距离
+     */
+    private float mTopPadding;
 
     /**
      * 当前选中的页面
@@ -173,6 +210,12 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
 
 
     /**
+     * 标题之间的间隔距离
+     */
+    private float mTextPadding;
+
+
+    /**
      *
      */
     private float mFooterIndicatorUnderlinePadding;
@@ -202,6 +245,12 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
 
 
     /**
+     * 定义绘画路径
+     */
+    private final Path mPath = new Path();
+
+
+    /**
      * 移动至少要滑动的距离
      */
     private int mTouchSlop;
@@ -225,6 +274,9 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
     private float mLastMotionX = -1;
 
 
+    /**
+     * 指示器上方距离标题下方的距离
+     */
     private float mFooterPadding;
 
 
@@ -250,13 +302,13 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
         //显示指示的样式(下划线或三角形)
         final int defaultFooterIndicatorStyle = res.getInteger(R.integer.default_title_indicator_footer_indicator_style);
 
-        //指示器布局的高度()
+        //指示器布局的高度(下划线或三角形)
         final float defaultFooterIndicatorHeight = res.getDimension(R.dimen.default_title_indicator_footer_indicator_height);
 
-        //显示指示的高度(下滑线或三角形的高度)
-        final float defaultFooterIndicatorUnderlineHeight = res.getDimension(R.dimen.default_title_indicator_footer_indicator_underline_padding);
+        //标题距离指示器左右两边的距离
+        final float defaultFooterIndicatorUnderlinePadding = res.getDimension(R.dimen.default_title_indicator_footer_indicator_underline_padding);
 
-        //
+        //指示器上方距离标题下方的距离
         final float defaultFooterPadding = res.getDimension(R.dimen.default_title_indicator_footer_padding);
 
         //指示器整体布局的位置
@@ -274,10 +326,13 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
         //标题字体默认大小
         final float defaultTextSize = res.getDimension(R.dimen.default_title_indicator_text_size);
 
-        final float defaultTextPaddingt = res.getDimension(R.dimen.default_title_indicator_text_padding);
+        //标题之间的间隔距离
+        final float defaultTextPadding = res.getDimension(R.dimen.default_title_indicator_text_padding);
 
+        //屏幕两边的内边距(padding)
         final float defaultClipPadding = res.getDimension(R.dimen.default_title_indicator_clip_padding);
 
+        //标题距离屏幕上方的距离
         final float defaultTopPadding = res.getDimension(R.dimen.default_title_indicator_top_padding);
 
         //获取在布局xml中定义的属性
@@ -289,9 +344,9 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
         mFooterIndicatorStyle = IndicatorStyle.fromValue(array.getInteger(R.styleable.TitlePagerIndicator_footerIndicatorStyle, defaultFooterIndicatorStyle));
         //指示器上下边缘线的高度
         mFooterLineHeight = array.getDimension(R.styleable.TitlePagerIndicator_footerLineHeight, defaultFooterLineHeight);
-        //
-        mFooterIndicatorUnderlinePadding = array.getDimension(R.styleable.TitlePagerIndicator_footerIndicatorUnderlinePadding, defaultFooterIndicatorUnderlineHeight);
-        //
+        //标题距离指示器左右两边的距离
+        mFooterIndicatorUnderlinePadding = array.getDimension(R.styleable.TitlePagerIndicator_footerIndicatorUnderlinePadding, defaultFooterIndicatorUnderlinePadding);
+        //指示器上方距离标题下方的距离
         mFooterPadding = array.getDimension(R.styleable.TitlePagerIndicator_footerPadding, defaultFooterPadding);
 
         //指示器布局的方位
@@ -302,6 +357,12 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
         mSelectedColor = array.getColor(R.styleable.TitlePagerIndicator_selectedColor, defaultSelectedColor);
         //选中页面时指示器字体是否加粗显示
         mBoldText = array.getBoolean(R.styleable.TitlePagerIndicator_selectedBold, defaultSelectedBold);
+        //屏幕两边的内边距(padding)
+        mClipPadding = array.getDimension(R.styleable.TitlePagerIndicator_clipPadding, defaultClipPadding);
+        //标题距离屏幕上方的距离
+        mTopPadding = array.getDimension(R.styleable.TitlePagerIndicator_topPadding, defaultTopPadding);
+        //标题之间的间隔距离
+        mTextPadding = array.getDimension(R.styleable.TitlePagerIndicator_textPadding, defaultTextPadding);
 
         //字体的大小
         final float textSize = array.getDimension(R.styleable.TitlePagerIndicator_android_textSize, defaultTextSize);
@@ -451,7 +512,278 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
      */
     @Override
     public void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (mViewPager == null) {
+            return;
+        }
 
+        final int count = mViewPager.getAdapter().getCount();
+        if (count == 0) {
+            return;
+        }
+
+        // mCurrentPage = -1，是初始化的值
+        if (mCurrentPage == -1 && mViewPager != null) {
+            mCurrentPage = mViewPager.getCurrentItem();
+        }
+
+        //计算所有视图的界限
+        ArrayList<Rect> bounds = calculateAllBounds(mPaintText);
+        final int boundsSize = bounds.size();
+        if (mCurrentPage >= boundsSize) {
+            setCurrentItem(boundsSize - 1);
+            return;
+        }
+        final int countMinusOne = count - 1;
+        final float halfWidth = getWidth() / 2f;
+        final int left = getLeft();
+        //视图距离屏幕左右两边的padding
+        final float leftClip = left + mClipPadding;
+        final int width = getWidth();
+        int height = getHeight();
+        final int right = left + width;
+        final float rightClip = right - mClipPadding;
+
+        int page = mCurrentPage;
+        float offsetPercent;
+
+        //根据用户滑动的情况判断是否进入下一个页面
+        if (mPositionOffset <= 0.5) {
+            offsetPercent = mPositionOffset;
+        } else {
+            //进入下一个页面
+            page += 1;
+            offsetPercent = 1 - mPositionOffset;
+        }
+
+        //确定当前页面的判定方法
+        final boolean currentSelected = (offsetPercent <= SELECTION_FADE_PERCENTAGE);
+        final boolean currentBold = (offsetPercent <= BOLD_FADE_PERCENTAGE);
+        final float selectedPercent = (SELECTION_FADE_PERCENTAGE - mPositionOffset) / SELECTION_FADE_PERCENTAGE;
+
+        //修正视图直接距离超过屏幕过多或过少距离的情况
+        Rect curPageBound = bounds.get(mCurrentPage);
+        float curPageWidth = curPageBound.right - curPageBound.left;
+        //当显示超过了屏幕左侧的距离时
+        if (curPageBound.left < leftClip) {
+            //修正视图超过屏幕的左侧的情况
+            clipViewOnTheLeft(curPageBound, curPageWidth, left);
+        }
+
+        if (curPageBound.right > rightClip) {
+            //修正视图超过屏幕的右侧的情况
+            clipViewOnTheRight(curPageBound, curPageWidth, right);
+        }
+
+        //当前位置左边的视图
+        if (mCurrentPage > 0) {
+            for (int i = mCurrentPage - 1; i >= 0; i--) {
+                Rect bound = bounds.get(i);
+                //如果边界左侧超过屏幕的左侧
+                if (bound.left < leftClip) {
+                    int w = bound.right - bound.left;
+                    //修正视图以显示在屏幕上
+                    clipViewOnTheLeft(bound, w, left);
+                    //检测视图是否与上一个视图产生交集
+                    Rect rightBound = bounds.get(i + 1);
+                    if (bound.right + mTextPadding > rightBound.left) {
+                        bound.left = (int) (rightBound.left - w - mTextPadding);
+                        bound.right = bound.left + w;
+                    }
+                }
+            }
+        }
+
+        //当视图在屏幕的右边的情况
+        if (mCurrentPage < countMinusOne) {
+            for (int i = mCurrentPage; i < count; i++) {
+                Rect bound = bounds.get(i);
+                //修正超过屏幕右边的情况
+                if (bound.right > rightClip) {
+                    int w = bound.right - bound.left;
+                    clipViewOnTheRight(bound, w, right);
+                    Rect leftBound = bounds.get(i - 1);
+                    if (bound.left - mTextPadding < leftBound.right) {
+                        bound.left = (int) (leftBound.right + mTextPadding);
+                        bound.right = bound.left + w;
+                    }
+                }
+            }
+        }
+
+        //无符号右移动,空缺的位补0
+        int colorTextAlpha = mTextColor >>> 24;
+        //绘制屏幕当中的标题
+        for (int i = 0; i < count; i++) {
+            Rect bound = bounds.get(i);
+            //判断当前视图的位置(必须要再当前的屏幕当中)
+            if ((bound.left > left && bound.left < right) || (bound.right > left && bound.right < right)) {
+                //是否等于当前的视图
+                final boolean currentPage = (i == page);
+                final CharSequence pageTitle = getTitle(i);
+                //设置文本字体加粗
+                mPaintText.setFakeBoldText(currentPage && currentBold && mBoldText);
+                //设置字体的颜色
+                mPaintText.setColor(mTextColor);
+                if (currentPage & currentSelected) {
+                    //设置透明度可以根据滑动的情况来改变
+                    mPaintText.setAlpha(colorTextAlpha - (int) (colorTextAlpha * selectedPercent));
+                }
+                if (i < boundsSize - 1) {
+                    Rect rightBound = bounds.get(i + 1);
+                    //检查视图是否相交
+                    if (bound.right + mTextPadding > rightBound.left) {
+                        int w = bound.right - bound.left;
+                        bound.left = (int) (rightBound.left - w - mTextPadding);
+                        bound.right = bound.left + w;
+                    }
+                }
+                canvas.drawText(pageTitle, 0, pageTitle.length(), bound.left, bound.bottom + mTopPadding, mPaintText);
+
+                if (currentPage && currentSelected) {
+                    mPaintText.setColor(mSelectedColor);
+                    mPaintText.setAlpha((int) ((mSelectedColor >>> 24) * selectedPercent));
+                    canvas.drawText(pageTitle, 0, pageTitle.length(), bound.left, bound.bottom + mTopPadding, mPaintText);
+                }
+            }
+        }
+
+
+        float footerLineHeight = mFooterLineHeight;
+        float footerIndicatorHeight = mFooterIndicatorHeight;
+
+        //判断指示的布局的方位
+        if (mLinePosition == LinePosition.Bottom) {
+            height = 0;
+            footerLineHeight = -footerLineHeight;
+            footerIndicatorHeight = -footerIndicatorHeight;
+        }
+
+        mPath.reset();
+        //移动去绘制起点
+        mPath.moveTo(0, height - footerLineHeight / 2f);
+        mPath.lineTo(width, height - footerLineHeight / 2f);
+        mPath.close();
+        canvas.drawPath(mPath, mPaintFooterLine);
+
+        float heightMinusLine = height - footerLineHeight;
+
+        //配置指示器的类型来进行绘制
+        switch (mFooterIndicatorStyle) {
+            case Triangle:
+                mPath.reset();
+                mPath.moveTo(halfWidth, heightMinusLine - footerIndicatorHeight);
+                mPath.lineTo(halfWidth + footerIndicatorHeight, heightMinusLine);
+                mPath.lineTo(halfWidth - footerIndicatorHeight, heightMinusLine);
+                mPath.close();
+                canvas.drawPath(mPath, mPaintFooterIndicator);
+                break;
+            case Underline:
+                if (!currentSelected || page >= boundsSize) {
+                    return;
+                }
+                Rect underlineBounds = bounds.get(page);
+                final float rightPlusPadding = underlineBounds.right + mFooterIndicatorUnderlinePadding;
+                final float leftMinusPadding = underlineBounds.left - mFooterIndicatorUnderlinePadding;
+                final float heightMinusLineIndicator = heightMinusLine - mFooterLineHeight;
+
+                mPath.reset();
+                mPath.moveTo(leftMinusPadding, heightMinusLine);
+                mPath.lineTo(rightPlusPadding, heightMinusLine);
+                mPath.lineTo(rightPlusPadding, heightMinusLineIndicator);
+                mPath.lineTo(leftMinusPadding, heightMinusLineIndicator);
+                mPath.close();
+                mPaintFooterIndicator.setAlpha((int)(0xFF*selectedPercent));
+                canvas.drawPath(mPath,mPaintFooterIndicator);
+                mPaintFooterIndicator.setAlpha(0xFF);
+                break;
+        }
+    }
+
+    /**
+     * 修正视图超过屏幕的右侧的情况
+     *
+     * @param curPageBound
+     * @param curPageWidth
+     * @param right
+     */
+    private void clipViewOnTheRight(Rect curPageBound, float curPageWidth, int right) {
+        curPageBound.right = (int) (right - mClipPadding);
+        curPageBound.left = (int) (curPageBound.right - curPageWidth);
+    }
+
+    /**
+     * 修正视图超过屏幕的左侧的情况
+     *
+     * @param curPageBound
+     * @param curPageWidth
+     * @param left
+     */
+    private void clipViewOnTheLeft(Rect curPageBound, float curPageWidth, int left) {
+        //刚好显示在屏幕的左侧
+        curPageBound.left = (int) (left + mClipPadding);
+        curPageBound.right = (int) (mClipPadding + curPageWidth);
+    }
+
+    /**
+     * 计算所有视图的的界限
+     *
+     * @param paint
+     * @return
+     */
+    private ArrayList<Rect> calculateAllBounds(Paint paint) {
+
+        ArrayList<Rect> list = new ArrayList<Rect>();
+
+        final int count = mViewPager.getAdapter().getCount();
+        final int width = getWidth();
+        final int halfWidth = getWidth() / 2;
+
+        for (int i = 0; i < count; i++) {
+            //计算标题的边界
+            Rect bounds = calcBounds(i, paint);
+            int w = bounds.right - bounds.left;
+            int h = bounds.bottom - bounds.top;
+            //在后面会对标题直接的距离进行修正
+            bounds.left = (int) (halfWidth - (w / 2) + ((i - mCurrentPage - mPositionOffset) * width));
+            bounds.right = bounds.left + w;
+            bounds.top = 0;
+            bounds.bottom = h;
+            list.add(bounds);
+        }
+
+        return list;
+    }
+
+    /**
+     * 计算标题的边界
+     *
+     * @param i
+     * @param paint
+     * @return
+     */
+    private Rect calcBounds(int i, Paint paint) {
+        Rect bounds = new Rect();
+        CharSequence title = getTitle(i);
+        bounds.right = (int) (paint.measureText(title, 0, title.length()));
+        //计算字体的高度,baseline 是y轴0坐标点
+        bounds.bottom = (int) (paint.descent() - paint.ascent());
+        return bounds;
+    }
+
+    /**
+     * 获取具体的标题内容
+     *
+     * @param i
+     * @return
+     */
+    private CharSequence getTitle(int i) {
+
+        CharSequence title = mViewPager.getAdapter().getPageTitle(i);
+        if (title == null) {
+            title = EMPTY_TITLE;
+        }
+        return title;
     }
 
 
@@ -484,6 +816,12 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        mCurrentPage = position;
+        mPositionOffset = positionOffset;
+        invalidate();
+        if (pageChangeListener != null) {
+            pageChangeListener.onPageScrolled(position, positionOffset, positionOffsetPixels);
+        }
 
     }
 
@@ -610,6 +948,12 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
             pageChangeListener.onPageScrollStateChanged(state);
         }
     }
+
+
+
+
+
+
 
 
 }

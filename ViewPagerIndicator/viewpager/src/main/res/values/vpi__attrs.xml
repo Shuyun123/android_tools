@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="ViewPagerIndicator">
+        <!-- tab指示器的样式-->
+        <attr name="vpiTabPagerIndicatorStyle" format="reference" />
+
+        <!-- icon指示器的样式-->
+        <attr name="vpiIconPagerIndicatorStyle" format="reference" />
+
+        <!-- line指示器的样式 -->
+        <attr name="vpiLinePagerIndicatorStyle" format="reference" />
+
+        <!-- underline指示器的样式-->
+        <attr name="vpiUnderlinePagerIndicatorStyle" format="reference" />
+
+        <!-- circle指示器的样式-->
+        <attr name="vpiCirclePagerIndicatorStyle" format="reference" />
+
+        <!-- title指示器的样式-->
+        <attr name="vpiTitlePagerIndicatoerStyle" format="reference" />
+
+
+    </declare-styleable>
+
+
+    <!--在xml中定义Line指示器可以定义的属性-->
+    <declare-styleable name="LinePagerIndicator">
+
+        <!--设置指示器是否在中心属性-->
+        <attr name="centered" format="boolean" />
+        <!--设置没有选择指示器时的颜色-->
+        <attr name="unselectedColor" format="color" />
+        <!--设置选择指示器时的颜色-->
+        <attr name="selectedColor" format="color" />
+        <!-- 设置指示器线长的宽度-->
+        <attr name="lineWidth" format="dimension" />
+        <!--设置画笔的宽度-->
+        <attr name="strokeWidth" format="dimension" />
+        <!--设置指示器之间的间隔距离-->
+        <attr name="gapWidth" format="dimension" />
+        <!--设置指示器视图背景-->
+        <attr name="android:background" />
+
+    </declare-styleable>
+
+    <!-- 在xml中定义Underline指示器可以定义的属性-->
+    <declare-styleable name="UnderlinePagerIndicator">
+        <!-- 选中页面是否指示器消失标识-->
+        <attr name="fades" format="boolean" />
+        <!-- 消失延迟时间-->
+        <attr name="fadeDelay" format="integer" />
+        <!-- 指示器变为透明的长度-->
+        <attr name="fadeLength" format="integer" />
+        <!-- 当前页面选中时指示器的颜色-->
+        <attr name="selectedColor" />
+        <!-- 设置指示器视图背景-->
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- 在xml中定义Circle指示器可以定义的属性-->
+    <declare-styleable name="CirclePagerIndicator">
+
+        <!-- 设置指示器是否在中心的属性-->
+        <attr name="centered" />
+        <!-- 设置选中页面时当前页面指示器器被填充的颜色 -->
+        <attr name="fillColor" format="color" />
+        <!-- 设置指示器圆圈被填充颜色的属性-->
+        <attr name="pageColor" format="color" />
+        <!-- 设置页面当中指示器布局的方向-->
+        <attr name="android:orientation" />
+        <!-- 设置页面当中指示器圆圈的半径大小-->
+        <attr name="radius" format="dimension" />
+        <!-- 设置页面指示器页面切换是否快速切换-->
+        <attr name="snap" format="boolean" />
+        <!-- 设置指示器绘制画笔的颜色属性-->
+        <attr name="strokeColor" format="color" />
+        <!-- 设置指示器当中画圆圈的画笔宽度属性-->
+        <attr name="strokeWidth" />
+        <!--设置指示器视图背景-->
+        <attr name="android:background" />
+    </declare-styleable>
+
+
+    <!-- 在xml中定义Title指示器可以定义的属性-->
+
+    <declare-styleable name="TitlePagerIndicator">
+
+        <!-- 屏幕边缘的内边距-->
+        <attr name="clipPadding" format="dimension" />
+
+        <!-- 指示器和上下边缘线的颜色-->
+        <attr name="footerColor" format="color" />
+
+        <!-- 屏幕上下边缘线的高度-->
+        <attr name="footerLineHeight" format="dimension" />
+
+        <!-- 指示器下划线样式,默认样式为下滑线-->
+        <attr name="footerIndicatorStyle">
+            <enum name="none" value="0" />
+            <enum name="triangle" value="1" />
+            <enum name="underline" value="2" />
+        </attr>
+
+        <!--指示器上方线条的高度-->
+        <attr name="footerIndicatorHeight" format="dimension" />
+
+        <!--指示器下滑线距离左右两边的内边距-->
+        <attr name="footerIndicatorUnderlinePadding" format="dimension" />
+
+        <!--指示器到标题的下方的距离 -->
+        <attr name="footerPadding" format="dimension" />
+
+        <!--指示器的布局方位-->
+        <attr name="linePosition">
+            <enum name="bottom" value="0" />
+            <enum name="top" value="1" />
+        </attr>
+        <!--选中的页面标题的颜色-->
+        <attr name="selectedColor" />
+        <!--选中某页面时是否标题字体加粗-->
+        <attr name="selectedBold" format="boolean" />
+        <!-- 标题的字体颜色-->
+        <attr name="android:textColor" />
+        <!-- 标题的字体大小-->
+        <attr name="android:textSize" />
+        <!-- 标题相互碰撞之间的相互距离-->
+        <attr name="textPadding" format="dimension" />
+        <!-- 标题距离视图顶部的距离-->
+        <attr name="topPadding" format="dimension" />
+        <!--设置指示器视图背景-->
+        <attr name="android:background" />
+    </declare-styleable>
+
+</resources>

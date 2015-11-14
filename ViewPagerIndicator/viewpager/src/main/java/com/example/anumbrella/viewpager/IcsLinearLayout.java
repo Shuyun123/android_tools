@@ -1,3 +1,4 @@
+package com.example.anumbrella.viewpager;
 
 /*
  * Copyright (C) 2011 The Android Open Source Project
@@ -20,7 +21,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -72,7 +72,6 @@ public class IcsLinearLayout extends LinearLayout {
     public IcsLinearLayout(Context context, int attrs) {
         super(context);
 
-
         //获取设置的xml属性
         TypedArray array = context.obtainStyledAttributes(null, LL, attrs, 0);
         setDividerDrawable(array.getDrawable(IcsLinearLayout.LL_DIVIDER));
@@ -89,7 +88,7 @@ public class IcsLinearLayout extends LinearLayout {
     @Override
     public void setDividerDrawable(Drawable divider) {
 
-        if (divider == null) {
+        if (divider == mDivider) {
             return;
         }
 
@@ -134,7 +133,7 @@ public class IcsLinearLayout extends LinearLayout {
         final int index = indexOfChild(child);
 
         //获得方向
-        final int orientaion = getOrientation();
+        final int orientation = getOrientation();
 
         //获取布局参数
         final LayoutParams params = (LayoutParams) child.getLayoutParams();
@@ -142,13 +141,11 @@ public class IcsLinearLayout extends LinearLayout {
         //检测是否显示分割线
         if (hasDividerBeforeChildAt(index)) {
 
-            if (orientaion == VERTICAL) {
+            if (orientation == VERTICAL) {
                 params.topMargin = mDividerHeight;
             } else {
-
                 params.leftMargin = mDividerWidth;
             }
-
         }
 
         super.measureChildWithMargins(child, parentWidthMeasureSpec,
@@ -190,10 +187,11 @@ public class IcsLinearLayout extends LinearLayout {
                     final LayoutParams parmas = (LayoutParams) child.getLayoutParams();
                     //减去分割线高度后距离父视图顶端的距离
                     final int top = child.getTop() - parmas.topMargin;
-                    drawaHorizontalDivider(canvas, top);
+                    drawHorizontalDivider(canvas, top);
                 }
             }
         }
+
     }
 
     /**
@@ -202,7 +200,7 @@ public class IcsLinearLayout extends LinearLayout {
      * @param canvas
      * @param top
      */
-    private void drawaHorizontalDivider(Canvas canvas, int top) {
+    private void drawHorizontalDivider(Canvas canvas, int top) {
 
         //设置分割线的位置(大小、高度)
         mDivider.setBounds(getPaddingLeft() + mDividerPadding, top,
@@ -230,7 +228,6 @@ public class IcsLinearLayout extends LinearLayout {
                 }
             }
         }
-
 
     }
 

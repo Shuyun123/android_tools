@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.example.anumbrella.viewpager;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -114,6 +116,7 @@ public class LinePagerIndicator extends View implements PagerIndicator {
     private boolean isDragging = false;
 
 
+
     public LinePagerIndicator(Context context) {
         this(context, null);
     }
@@ -125,7 +128,8 @@ public class LinePagerIndicator extends View implements PagerIndicator {
 
     public LinePagerIndicator(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        if (isInEditMode()){
+        //解决自定义视图无法编辑预览报错时调用
+        if (isInEditMode()) {
             return;
         }
 
@@ -382,7 +386,7 @@ public class LinePagerIndicator extends View implements PagerIndicator {
         final int action = event.getAction() & MotionEventCompat.ACTION_MASK;
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                //pointerIndex从0到getPointerCount-1,返回一个触摸点的标识,获取第0个
+                //getPointerId从0到getPointerCount-1,返回一个触摸点的标识,默认获取第0个
                 mActivePointerId = MotionEventCompat.getPointerId(event, 0);
                 mLastMotionX = event.getX();
                 break;
@@ -527,6 +531,7 @@ public class LinePagerIndicator extends View implements PagerIndicator {
 
         return (int) Math.ceil(result);
     }
+
     /**
      * 获取先前保存的视图状态
      *
@@ -589,6 +594,7 @@ public class LinePagerIndicator extends View implements PagerIndicator {
                 return new SavedState[size];
             }
         };
+
 
     }
 

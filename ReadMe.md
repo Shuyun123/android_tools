@@ -47,10 +47,10 @@
                |
                +---------- UnderlinePagerIndicator.java ------ 下划线指示器类
                |
-               +---------- CirclePagerIndicator.java --------- 圆圈指示器类            
-    
-      该源码来自大神[Jake Wharton](https://github.com/JakeWharton/ViewPagerIndicator/)
-      重新覆写,并添加中文注释(英语不好,欢迎指正*_-)
+               +---------- CirclePagerIndicator.java --------- 圆圈指示器类      
+               |
+               +---------- TitlePagerIndicator.java ---------- 标题指示器类      
+
 
 
 

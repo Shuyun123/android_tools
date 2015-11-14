@@ -7,15 +7,12 @@
 
 ####感觉收获很大，获得到了构思和方法设定上的一些启示，后来看到开源工程的文档后，原来有很多人都在学习这个源码，看了别人的分析后更加明白了。就像发起者说的一样，我们不重复造轮子不表示我们不需要知道轮子该怎么造及如何更好的造！
 
-<br/>
 ***
 ####ViewPagerIndicator--- [分析文档](http://a.codekk.com/detail/Android/lightSky/ViewPagerindicator%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90)
-<br/>
 ***
 
-
 ##demo(Android Studio)
-#####用法:将viewpager作为一个独立的Model,作为类库引用
+#####用法:将viewpager作为一个独立的Module,作为类库引用
 
 ####截图
 ![demo](demo.gif)

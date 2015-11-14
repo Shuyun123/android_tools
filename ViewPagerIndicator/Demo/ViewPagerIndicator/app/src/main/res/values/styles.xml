@@ -7,6 +7,7 @@
         <item name="vpiLinePagerIndicatorStyle">@style/CustomLinePagerIndicator</item>
         <item name="vpiUnderlinePagerIndicatorStyle">@style/CustomUnderlinePagerIndicator</item>
         <item name="vpiCirclePagerIndicatorStyle">@style/CustomCirclePagerIndicator</item>
+        <item name="vpiTitlePagerIndicatoerStyle">@style/CustomTitlePagerIndicator</item>
     </style>
 
 
@@ -19,8 +20,8 @@
         <item name="android:divider">@drawable/custom_tab_indicator_divider</item>
         <item name="android:dividerPadding">1.5dip</item>
         <item name="android:showDividers">middle</item>
-        <!--<item name="android:paddingLeft">30dp</item>-->
-        <!--<item name="android:paddingRight">30dp</item>-->
+        <item name="android:paddingLeft">30dp</item>
+        <item name="android:paddingRight">30dp</item>
         <item name="android:fadingEdge">horizontal</item>
         <item name="android:fadingEdgeLength">8dp</item>
     </style>
@@ -54,6 +55,18 @@
         <item name="strokeWidth">2dp</item>
         <item name="radius">10dp</item>
         <item name="centered">true</item>
+    </style>
+
+    <!-- 自定义样式的titles指示器-->
+    <style name="CustomTitlePagerIndicator">
+        <item name="android:background">#18FF0000</item>
+        <item name="footerColor">#FFAA2222</item>
+        <item name="footerLineHeight">1dp</item>
+        <item name="footerIndicatorHeight">3dp</item>
+        <item name="footerIndicatorStyle">underline</item>
+        <item name="android:textColor">#AA000000</item>
+        <item name="selectedColor">#FF000000</item>
+        <item name="selectedBold">true</item>
     </style>
 
 

@@ -7,6 +7,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.ViewPager;
@@ -65,7 +67,7 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
      * 枚举类型,定义指示器的布局方位
      */
     public enum LinePosition {
-        Bottom(0), Top(1);
+        Bottom(1), Top(0);
 
         private int value;
 
@@ -280,10 +282,25 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
     private float mFooterPadding;
 
 
+    /**
+     * 测量视图所用的Rect
+     */
+    private Rect mBound = new Rect();
+
+
+
+    public TitlePagerIndicator(Context context){
+        this(context,null);
+    }
+
+    public TitlePagerIndicator(Context context,AttributeSet attrs){
+        this(context,attrs,R.attr.vpiTitlePagerIndicatoerStyle);
+    }
+
+
+
     public TitlePagerIndicator(Context context, AttributeSet attrs, int defaultStyle) {
         super(context, attrs, defaultStyle);
-
-
         //解决自定义视图无法编辑预览报错时调用
         if (isInEditMode()) {
             return;
@@ -416,6 +433,17 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
         invalidate();
     }
 
+
+    public boolean isBoldSelectedBold() {
+        return mBoldText;
+    }
+
+    public void setSelectedBold(boolean boldText) {
+        mBoldText = boldText;
+        invalidate();
+    }
+
+
     public float getFooterIndicatorPadding() {
         return mFooterPadding;
     }
@@ -430,11 +458,11 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
      *
      * @return
      */
-    public IndicatorStyle getIndicatorStyle() {
+    public IndicatorStyle getFooterIndicatorStyle() {
         return mFooterIndicatorStyle;
     }
 
-    public void setIndicatorStyle(IndicatorStyle indicatorStyle) {
+    public void setFooterIndicatorStyle(IndicatorStyle indicatorStyle) {
         mFooterIndicatorStyle = indicatorStyle;
         invalidate();
     }
@@ -454,15 +482,6 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
 
     public void setSelectedColor(int selectedColor) {
         mSelectedColor = selectedColor;
-        invalidate();
-    }
-
-    public boolean isBoldText() {
-        return mBoldText;
-    }
-
-    public void setBoldText(boolean boldText) {
-        mBoldText = boldText;
         invalidate();
     }
 
@@ -547,7 +566,7 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
         int page = mCurrentPage;
         float offsetPercent;
 
-        //根据用户滑动的情况判断是否进入下一个页面
+        //根据用户滑动的情况判断是否进入下一个页面(当滑动超过0.5%左右两边的视图会移动)
         if (mPositionOffset <= 0.5) {
             offsetPercent = mPositionOffset;
         } else {
@@ -559,7 +578,7 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
         //确定当前页面的判定方法
         final boolean currentSelected = (offsetPercent <= SELECTION_FADE_PERCENTAGE);
         final boolean currentBold = (offsetPercent <= BOLD_FADE_PERCENTAGE);
-        final float selectedPercent = (SELECTION_FADE_PERCENTAGE - mPositionOffset) / SELECTION_FADE_PERCENTAGE;
+        final float selectedPercent = (SELECTION_FADE_PERCENTAGE - offsetPercent) / SELECTION_FADE_PERCENTAGE;
 
         //修正视图直接距离超过屏幕过多或过少距离的情况
         Rect curPageBound = bounds.get(mCurrentPage);
@@ -693,8 +712,8 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
                 mPath.lineTo(rightPlusPadding, heightMinusLineIndicator);
                 mPath.lineTo(leftMinusPadding, heightMinusLineIndicator);
                 mPath.close();
-                mPaintFooterIndicator.setAlpha((int)(0xFF*selectedPercent));
-                canvas.drawPath(mPath,mPaintFooterIndicator);
+                mPaintFooterIndicator.setAlpha((int) (0xFF * selectedPercent));
+                canvas.drawPath(mPath, mPaintFooterIndicator);
                 mPaintFooterIndicator.setAlpha(0xFF);
                 break;
         }
@@ -725,6 +744,17 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
         curPageBound.right = (int) (mClipPadding + curPageWidth);
     }
 
+
+    /**
+     * 设置回调函数的监听
+     *
+     * @param listener
+     */
+    public void setOnCenterItemClickListener(OnCenteredItem listener) {
+        mCenterItemClickListener = listener;
+    }
+
+
     /**
      * 计算所有视图的的界限
      *
@@ -738,7 +768,6 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
         final int count = mViewPager.getAdapter().getCount();
         final int width = getWidth();
         final int halfWidth = getWidth() / 2;
-
         for (int i = 0; i < count; i++) {
             //计算标题的边界
             Rect bounds = calcBounds(i, paint);
@@ -950,10 +979,101 @@ public class TitlePagerIndicator extends View implements PagerIndicator {
     }
 
 
+    /**
+     * 测量视图的特定的大小
+     *
+     * @param widthMeasureSpec
+     * @param heightMeasureSpec
+     */
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+        final int measureWidth = MeasureSpec.getSize(widthMeasureSpec);
+
+        //测量视图的高度
+        float height;
+        final int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
+
+        //模式为match_parent
+        if (heightSpecMode == MeasureSpec.EXACTLY) {
+            //获取模式下视图的高度
+            height = MeasureSpec.getSize(heightMeasureSpec);
+        } else {
+            //设定计算的视图
+            mBound.setEmpty();
+            mBound.bottom = (int) (mPaintText.descent() - mPaintText.ascent());
+            height = mBound.bottom - mBound.top + mFooterLineHeight + mFooterPadding + mTopPadding;
+            if (mFooterIndicatorStyle != IndicatorStyle.None) {
+                height += mFooterIndicatorHeight;
+            }
+        }
+        final int measuredHeight = (int) height;
+        setMeasuredDimension(measureWidth, measuredHeight);
+    }
 
 
+    /**
+     * 获取先前保存的视图状态
+     *
+     * @param state
+     */
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        SavedState savedState = (SavedState) state;
+        super.onRestoreInstanceState(savedState.getSuperState());
+        mCurrentPage = savedState.currentPage;
+        requestLayout();
+    }
+
+    /**
+     * 保存视图被销毁之前的状态
+     *
+     * @return
+     */
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        SavedState savedState = new SavedState(superState);
+        savedState.currentPage = mCurrentPage;
+        return savedState;
+    }
 
 
+    /**
+     * 存储数据类,继承BaseSavedState
+     */
+    public static class SavedState extends BaseSavedState {
+
+        private int currentPage;
+
+
+        private SavedState(Parcel in) {
+            super(in);
+            currentPage = in.readInt();
+        }
+
+        public SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(currentPage);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel source) {
+                return new SavedState(source);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
+    }
 
 
 }

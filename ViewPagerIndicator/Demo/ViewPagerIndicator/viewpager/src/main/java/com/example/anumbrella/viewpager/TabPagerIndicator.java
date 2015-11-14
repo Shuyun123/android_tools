@@ -259,7 +259,7 @@ public class TabPagerIndicator extends HorizontalScrollView implements
             final View child = mTabLayout.getChildAt(i);
             boolean isSelected = (i == item);
             child.setSelected(isSelected);
-            if (child.isSelected()) {
+            if (isSelected) {
                 // 如果选中就将当前的选中移动到当前位置
                 animateToTab(item);
             }

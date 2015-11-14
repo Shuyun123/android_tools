@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:anumbrella="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.example.anumbrella.viewpager.TitlePagerIndicator
+        android:id="@+id/indicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#18FF0000"
+        android:textColor="#AA000000"
+        anumbrella:footerColor="#FFAA2222"
+        anumbrella:footerIndicatorHeight="3dp"
+        anumbrella:footerIndicatorStyle="underline"
+        anumbrella:footerLineHeight="1dp"
+        anumbrella:selectedBold="true"
+        anumbrella:selectedColor="#FF000000" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1" />
+
+</LinearLayout>

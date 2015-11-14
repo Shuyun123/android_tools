@@ -226,6 +226,92 @@
         </activity>
 
 
+        <!-- Titles 指示器-->
+        <activity
+            android:name=".Titles.SampleTitlesDefault"
+            android:label="Titles/Default">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Titles.SampleTitlesCenterClickListener"
+            android:label="Titles/CenterClickListener">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Titles.SampleTitlesBottom"
+            android:label="Titles/Bottom">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Titles.SampleTitlesInitialPage"
+            android:label="Titles/InitialPage">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Titles.SampleTitlesStyledMethods"
+            android:label="Titles/Methods"
+            android:theme="@android:style/Theme.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Titles.SampleTitlesStyledLayout"
+            android:label="Titles/Layout"
+            android:theme="@android:style/Theme.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Titles.SampleTitlesStyledTheme"
+            android:label="Titles/Theme"
+            android:theme="@style/StyledIndicator">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Titles.SampleTitlesTriangle"
+            android:label="Titles/Triangle">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Titles.SampleTitlesWithListener"
+            android:label="Titles/WithListener">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="net.anumbrella.android.viewpagerindicator.sample.SAMPLE" />
+            </intent-filter>
+        </activity>
+
+
     </application>
 
 </manifest>
